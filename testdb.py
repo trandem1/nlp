@@ -82,7 +82,47 @@ def choseSenetence (s1):
         if  temp > kc :
             kc = temp
             monhoc= hp
-    return monhoc
-print(choseSenetence("ngon ngữ tự niên"))
+        if kc > 0.6 :
+            break
+    if kc > 0.6 :
+        return monhoc
+    else :
+        return 0
+"""
+khi ham choseSentence khong the tra lai dc 1 ket qua hop ly,
+ta se thu sua các từ nằm trong môn học họ nhập vào để đưa ra đc 1 kết quả mới
+có thể dùng để chạy lại hàm choseSenten 1 lần nữa. trước khi ta nhận định 
+nguời dùng đã quá sai chinh tả
+"""
 
+def choseword(s1):
+    """
+    :param s1:
+    :return: 1 chuỗi đã được sử lý
+    ví dụ  xư lí ngôn tư niên -> xử lý ngôn tự nhiên
+    threshold sẽ là 0.5 cho từ có 2 kí tụ
+    threshold sẽ là 2/3 cho từ có 3 kí tụ trở lên
+    """
+    words = set(['xử','lý','ngôn','ngữ','tự','nhiên','lập','trình'])
+    words1 = s1.split()
+    s2=""
+    for temp in words1:
+        if(len(temp)>2):
+            for temp1 in words :
+                kc = levenshteinDistance(temp,temp1)
+                if kc >=2/3 :
+                    s2+=" " +temp1
+                    break
+        else:
+            for temp1 in words :
+                kc = levenshteinDistance(temp,temp1)
+                if kc >=0.5 :
+                    s2 += " " + temp1
+                    break
+    return s2
 
+print(choseword("xư lí ngôn tư niên"))
+
+print(choseSenetence("xư lí ngôn tư niên"))
+
+print(levenshteinDistance('dem','đem'))
