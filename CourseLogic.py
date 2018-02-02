@@ -5,12 +5,15 @@ class myCourseLogic (LogicAdapter):
         super(myCourseLogic, self).__init__(**kwargs)
 
     def changeWordBeforePre(self,s1):
-        wordInit = set(["môn", "học", "phần", "lớp", "mã", "lịch","và"])
+        wordInit = set(["môn", "học", "phần", "lớp", "mã", "lịch", "và"])
         max = 0.0
         for text in wordInit:
             if len(s1) == 2:
                 t = self.levenshteinDistance(s1, text)
-                if t > 0.33 and t > max:
+                if t > 0.33 and t > max and len(text) == 2:
+                    max = t
+                    s1 = text
+                if t > 0.4 and t > max and len(text) > 2:
                     max = t
                     s1 = text
             else:
@@ -34,13 +37,12 @@ class myCourseLogic (LogicAdapter):
         return s2.strip()
 
     def can_process(self, statement):
-        inputpre = self.changeInput(statement.text)
-        index = self.dectectMyLogic(inputpre).__getitem__(0)
+        t = self.replaceMlop(self.replacemaHP(statement.text))
         if self.detectMlop(statement.text) != False:
             return True
-        if self.detectmaHp(statement.text) != False:
+        elif self.detectmaHp(statement.text) != False:
             return True
-        if index != -1:
+        elif self.processTenLop(t).__getitem__(0) != False:
             return True
         else:
             return False
@@ -90,10 +92,12 @@ class myCourseLogic (LogicAdapter):
             return False
         else:
             return t
+
     def replacemaHP(self,s1):
         import re
         t1 = re.sub(r"[a-zA-Z]{2,3}[0-9]{4}[a-zA-Z]?", "", s1)
         return t1
+
     def detectMlop(self,s1):
         import re
         t = re.findall(r"[0-9]{5,6}", s1)
@@ -117,8 +121,8 @@ class myCourseLogic (LogicAdapter):
         import MySQLdb
         con = db = MySQLdb.connect(host="localhost",  # your host, usually localhost
                                    user="root",  # your username
-                                   passwd="anhdem96",  # your password
-                                   db="test_it4421",
+                                   passwd="291096",  # your password
+                                   db="nlp",
                                    charset='utf8')
         query = con.cursor()
         query.execute("SELECT monhoc FROM tenmonhoc;")
@@ -154,8 +158,8 @@ class myCourseLogic (LogicAdapter):
         import MySQLdb
         con = db = MySQLdb.connect(host="localhost",  # your host, usually localhost
                                    user="root",  # your username
-                                   passwd="anhdem96",  # your password
-                                   db="test_it4421",
+                                   passwd="291096",  # your password
+                                   db="nlp",
                                    charset='utf8')
         query = con.cursor()
         query.execute("SELECT vocab FROM vocabulary;")
@@ -205,17 +209,16 @@ class myCourseLogic (LogicAdapter):
     ham nay dung de cat ten lop tu 1 chuoi
     """
     def detecttenLop(self,s1):
-        print(s1)
         t = s1.split(',')
         t1 = t[-1].split("và")
         t.remove(t[-1])
-        if len(t1) > 1:
+        if len(t1) >= 1:
             for text in t1:
                 t.append(text)
         for i in range(len(t)):
             t[i] = t[i].strip()
-        # print(t)
         return t
+
     """
     su dung de sua ten lop
     """
@@ -234,9 +237,18 @@ class myCourseLogic (LogicAdapter):
         # print(s1)
         t = self.detecttenLop(s1)
         rs = []
-        for text in t:
-            rs.append(self.fixtenlop(text.lower()))
-        return rs
+        firstTenlop = self.fixtenlop(t[0].lower())
+        if firstTenlop == False:
+            t1 = self.fixtenlop(self.dectectMyLogic(self.changeInput(t[0])).__getitem__(1))
+            if t1 != False:
+                rs.append(t1)
+        for i in range(1, len(t)):
+            tenlop = self.fixtenlop(t[i].lower())
+            if tenlop != False:
+                rs.append(tenlop)
+        if len(rs) != 0:
+            return True, rs
+        return False
 
     def outputhp(self,s1):
         str1 = "ma hoc phan: "
@@ -253,26 +265,14 @@ class myCourseLogic (LogicAdapter):
         return str2
 
     def outputTenlop(self,s1):
-        if self.ProcessInputtenLop(s1) == False:
-            print("lolol")
-            tenlop = self.processTenLop(s1)
-            str1 = " ten lop:"
-            for text in tenlop:
-                if text != "False" or text !=False:
-                    pass
-                else:
-                    str1 += "\n " + str(text)
+        if self.processTenLop(s1).__getitem__(0) != False:
+            str1 ="tên lớp học \n"
+            for text in self.processTenLop(s1).__getitem__(1):
+                str1 +=text+"\n"
             return str1
         else:
-            t = self.dectectMyLogic(s1).__getitem__(1)
-            tenlop = self.processTenLop(t)
-            str1 = " ten lop:"
-            for text in tenlop:
-                if text != "False" or text != False:
-                    pass
-                else:
-                    str1 += "\n " + str(text)
-            return str1
+            return "0"
+
 
     # def output(self,s1):
     #     str1 = "ma hoc phan: "
@@ -297,12 +297,6 @@ class myCourseLogic (LogicAdapter):
     #         str1 +="\n "+str(text)
     #     return str1
 
-    def ProcessInputtenLop(self,s1):
-        t = self.processTenLop(s1)
-        if t == []:
-            return False
-        else:
-            return True
 
 
 
