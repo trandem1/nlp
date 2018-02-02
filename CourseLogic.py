@@ -253,19 +253,24 @@ class myCourseLogic (LogicAdapter):
     def outputhp(self,s1):
         str1 = "ma hoc phan: "
         mahp = self.detectmaHp(s1)
-        for text in mahp:
-            str1 += "\n " + str(text)
-        return str1
+        if mahp != False :
+            for text in mahp:
+                str1 += "\n " + str(text)
+            return str1
+        else:
+            return "0"
     def outputMlop(self,s1):
         str2 = "ma lop: "
         malop = self.detectMlop(s1)
-        if malop != False:
-            for text in malop:
-                str2 += "\n" + str(text)
-        return str2
+        if malop != False :
+            if malop != False:
+                for text in malop:
+                    str2 += "\n" + str(text)
+            return str2
+        return "0"
 
     def outputTenlop(self,s1):
-        if self.processTenLop(s1).__getitem__(0) != False:
+        if self.processTenLop(s1) != False:
             str1 ="tên lớp học \n"
             for text in self.processTenLop(s1).__getitem__(1):
                 str1 +=text+"\n"
