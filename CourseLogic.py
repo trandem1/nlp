@@ -6,9 +6,9 @@ class myCourseLogic (LogicAdapter):
 
     def changeWordBeforePre(self,s1):
         wordInit = set(["môn", "học", "phần", "lớp", "mã", "lịch","và"])
-        max = 0
+        max = 0.0
         for text in wordInit:
-            if len(text) == 2:
+            if len(s1) == 2:
                 t = self.levenshteinDistance(s1, text)
                 if t > 0.33 and t > max:
                     max = t
@@ -142,7 +142,6 @@ class myCourseLogic (LogicAdapter):
     có thể dùng để chạy lại hàm choseSenten 1 lần nữa. trước khi ta nhận định
     nguời dùng đã quá sai chinh tả
     """
-
     def choseword(self,s1):
         """
         :param s1:
@@ -197,11 +196,16 @@ class myCourseLogic (LogicAdapter):
         from chatterbot.conversation import Statement
         outhp =self.outputhp(statement.text)
         outMl = self.outputMlop(statement.text)
-        t = Statement('ket qua la \n '+outhp +"\n"+outMl )
+        t = self.replacemaHP(statement.text)
+        t1 = self.replaceMlop(t)
+        t = Statement('ket qua la \n '+outhp +"\n"+outMl +"\n"+self.outputTenlop(self.changeInput(t1)))
         t.confidence = 1
         return t
-
+    """
+    ham nay dung de cat ten lop tu 1 chuoi
+    """
     def detecttenLop(self,s1):
+        print(s1)
         t = s1.split(',')
         t1 = t[-1].split("và")
         t.remove(t[-1])
@@ -210,16 +214,24 @@ class myCourseLogic (LogicAdapter):
                 t.append(text)
         for i in range(len(t)):
             t[i] = t[i].strip()
+        # print(t)
         return t
-
+    """
+    su dung de sua ten lop
+    """
     def fixtenlop(self,s1):
         t = self.choseSenetence(s1)
         if t == False:
-            t1 = self.choseword(s1)
-            t = self.choseSenetence(t1)
-        return t
-
+            return False
+            # t1 = self.choseword(s1)
+            # t = self.choseSenetence(t1)
+        else:
+            return t
+    """
+    lay ten lop hoan thien vao mang
+    """
     def processTenLop(self,s1):
+        # print(s1)
         t = self.detecttenLop(s1)
         rs = []
         for text in t:
@@ -240,26 +252,57 @@ class myCourseLogic (LogicAdapter):
                 str2 += "\n" + str(text)
         return str2
 
-    def output(self,s1):
-        str1 = "ma hoc phan: "
-        mahp =self.detectmaHp(s1)
-        if mahp != False:
-            for text in mahp:
-                str1 += "\n " + str(text)
-            newS = self.replacemaHP(s1)
+    def outputTenlop(self,s1):
+        if self.ProcessInputtenLop(s1) == False:
+            print("lolol")
+            tenlop = self.processTenLop(s1)
+            str1 = " ten lop:"
+            for text in tenlop:
+                if text != "False" or text !=False:
+                    pass
+                else:
+                    str1 += "\n " + str(text)
+            return str1
         else:
-            newS = s1
-        str1 += "\n ma lop: "
-        malop = self.detectMlop(newS)
-        if malop !=False:
-            newS1 = self.replaceMlop(newS)
-            for text in malop:
-                str1 += "\n" + str(text)
+            t = self.dectectMyLogic(s1).__getitem__(1)
+            tenlop = self.processTenLop(t)
+            str1 = " ten lop:"
+            for text in tenlop:
+                if text != "False" or text != False:
+                    pass
+                else:
+                    str1 += "\n " + str(text)
+            return str1
+
+    # def output(self,s1):
+    #     str1 = "ma hoc phan: "
+    #     mahp =self.detectmaHp(s1)
+    #     if mahp != False:
+    #         for text in mahp:
+    #             str1 += "\n " + str(text)
+    #         newS = self.replacemaHP(s1)
+    #     else:
+    #         newS = s1
+    #     str1 += "\n ma lop: "
+    #     malop = self.detectMlop(newS)
+    #     if malop !=False:
+    #         newS1 = self.replaceMlop(newS)
+    #         for text in malop:
+    #             str1 += "\n" + str(text)
+    #     else:
+    #         newS1 = newS
+    #     tenlop = self.processTenLop(newS1)
+    #     str1 +="\n ten lop:"
+    #     for text in tenlop:
+    #         str1 +="\n "+str(text)
+    #     return str1
+
+    def ProcessInputtenLop(self,s1):
+        t = self.processTenLop(s1)
+        if t == []:
+            return False
         else:
-            newS1 = newS
-        tenlop = self.processTenLop(newS1)
-        str1 +="\n ten lop:"
-        for text in tenlop:
-            str1 +="\n "+str(text)
-        return str1
+            return True
+
+
 

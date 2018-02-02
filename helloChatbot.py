@@ -12,7 +12,7 @@ chatbot = ChatBot(
 
 # Get a response for some unexpected input
 
-response = chatbot.get_response("tìm cho tao môn học it4421 , 21412")
+response = chatbot.get_response("tìm cho tao môn học it4421 , 21412, xử lý ngôn ngữ tự nhiên, tâm lý học")
 #
 print(response)
 
