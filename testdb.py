@@ -6,6 +6,11 @@
 #                                    charset='utf8')
 # query = con.cursor();
 # query.execute("SELECT distinct(ten_hp) FROM test_it4421.tkb;")
+# for row in query.fetchall():
+#     print(row[0])
+#     query1 = con.cursor()
+#     query1.execute("insert into tenmonhoc(monhoc) values ( '" + row[0] +"');")
+
 # print(query.rowcount)
 # for row in query.fetchall():
 #     print(row[0])
@@ -29,46 +34,46 @@
 # print(te/te1)
 # # print(t)
 # """
-def distance(s1,s2):
-    nStt = [0 for i in range(len(s1)+1)]
-    for x in range(len(nStt)):
-        nStt[x] =[0 for i in range(len(s2) +1)]
-    for x in range(len(s2)+1):
-        nStt[0][x] =x
-    for x in range(len(s1)+1):
-        nStt[x][0] =x
-    for i in range(len(s1)):
-        for j in range(len(s2)):
-            if s1[i]==s2[j] :
-                nStt[i+1][j+1] = nStt[i][j]
-            else:
-                nStt[i+1][j+1] = 1 + min(nStt[i][j],nStt[i][j+1],nStt[i+1][j])
-    distac = 1 - nStt[len(s1)][len(s2)] / max(len(s1),len(s2))
-    return distac
-
-"""
-tham khao code tren mang, thay code rat ngan
-no se chay nhanh hon tam 3 lan code ben tren
-"""
-def levenshteinDistance(s1, s2):
-    """
-    :param s1:la chuoi ki tu
-    :param s2:la chuoi ki tu
-    :return: khoang cach cua 2 chuoi dau vao
-    """
-    if len(s1) > len(s2):
-        s1, s2 = s2, s1
-    distances = range(len(s1) + 1)
-    for i2, c2 in enumerate(s2):
-        distances_ = [i2+1]
-        for i1, c1 in enumerate(s1):
-            if c1 == c2:
-                distances_.append(distances[i1])
-            else:
-                distances_.append(1 + min((distances[i1], distances[i1 + 1], distances_[-1])))
-        distances = distances_
-    distac = 1- distances[-1]/max(len(s1),len(s2))
-    return distac
+# def distance(s1,s2):
+#     nStt = [0 for i in range(len(s1)+1)]
+#     for x in range(len(nStt)):
+#         nStt[x] =[0 for i in range(len(s2) +1)]
+#     for x in range(len(s2)+1):
+#         nStt[0][x] =x
+#     for x in range(len(s1)+1):
+#         nStt[x][0] =x
+#     for i in range(len(s1)):
+#         for j in range(len(s2)):
+#             if s1[i]==s2[j] :
+#                 nStt[i+1][j+1] = nStt[i][j]
+#             else:
+#                 nStt[i+1][j+1] = 1 + min(nStt[i][j],nStt[i][j+1],nStt[i+1][j])
+#     distac = 1 - nStt[len(s1)][len(s2)] / max(len(s1),len(s2))
+#     return distac
+#
+# """
+# tham khao code tren mang, thay code rat ngan
+# no se chay nhanh hon tam 3 lan code ben tren
+# """
+# def levenshteinDistance(s1, s2):
+#     """
+#     :param s1:la chuoi ki tu
+#     :param s2:la chuoi ki tu
+#     :return: khoang cach cua 2 chuoi dau vao
+#     """
+#     if len(s1) > len(s2):
+#         s1, s2 = s2, s1
+#     distances = range(len(s1) + 1)
+#     for i2, c2 in enumerate(s2):
+#         distances_ = [i2+1]
+#         for i1, c1 in enumerate(s1):
+#             if c1 == c2:
+#                 distances_.append(distances[i1])
+#             else:
+#                 distances_.append(1 + min((distances[i1], distances[i1 + 1], distances_[-1])))
+#         distances = distances_
+#     distac = 1- distances[-1]/max(len(s1),len(s2))
+#     return distac
 #
 # """
 # dung de sua loi chinh ta cho nguoi nhap vao
@@ -134,25 +139,78 @@ def levenshteinDistance(s1, s2):
 #         index = i
 # print(index)
 
+# """
+# tham khao code tren mang, thay code rat ngan
+# no se chay nhanh hon tam 3 lan code ben tren
+# """
+# def levenshteinDistance(s1, s2):
+#     """
+#     :param s1:la chuoi ki tu
+#     :param s2:la chuoi ki tu
+#     :return: khoang cach cua 2 chuoi dau vao
+#     """
+#     if len(s1) > len(s2):
+#         s1, s2 = s2, s1
+#     distances = range(len(s1) + 1)
+#     for i2, c2 in enumerate(s2):
+#         distances_ = [i2+1]
+#         for i1, c1 in enumerate(s1):
+#             if c1 == c2:
+#                 distances_.append(distances[i1])
+#             else:
+#                 distances_.append(1 + min((distances[i1], distances[i1 + 1], distances_[-1])))
+#         distances = distances_
+#     distac = 1- distances[-1]/max(len(s1),len(s2))
+#     return distac
+#
+#
+# """
+# hàm này sử dụng để sửa lỗi chính tả đầu vào ví dụ max -> mã
+# """
+# def changeWordBeforePre(s1):
+#     wordInit = set(["môn", "học", "phần", "lớp", "mã", "lịch,và"])
+#     max =0
+#     for text in wordInit :
+#         if len(text) == 2:
+#             t = levenshteinDistance(s1, text)
+#             if  t > 0.33 and t > max:
+#                 max =t
+#                 s1 = text
+#         else :
+#             t = levenshteinDistance(s1, text)
+#             if t > 0.4 and t >max:
+#                 max =t
+#                 s1 = text
+#     return s1
+# """
+# sử dụng cả chuỗi input nhập vào
+# tìm cho tôi mon hocj và  max lớp xử lý ngôn ngữ tự niên và tâm lý học
+# -> tìm cho tôi môn học và mã lớp xử lý môn ngữ tự niên và tâm lý học
+# """
+#
+# def changeInput(s1):
+#     arr = s1.split()
+#     s2 =""
+#     for t in arr :
+#         s2 += " " + changeWordBeforePre(t)
+#     return s2.strip()
 
-
-
-
-def dectectMyLogic(s1):
-        arr = s1.split()
-        s2 = ""
-        index = -1
-        for i in range(len(arr)):
-            if arr[i] == "học" and arr[i - 1] == "môn":
-                index = i
-            if arr[i] == "học" and arr[i - 1] == "lớp":
-                index = i
-            if arr[i] == "phần" and arr[i - 1] == "học":
-                index = i
-            if arr[i] == "lớp" and arr[i - 1] == "mã":
-                index = i
-        if index != -1:
-            for i in range(index + 1, len(arr)):
-                s2 += " " + arr[i]
-        return index, s2
-print(dectectMyLogic("tìm cho tôi môn học và mã lớp xử lý môn ngữ tự niên và tâm lý học").__getitem__(0))
+#
+# def dectectMyLogic(s1):
+#         arr = s1.split()
+#         s2 = ""
+#         index = -1
+#         for i in range(len(arr)):
+#             if arr[i] == "học" and arr[i - 1] == "môn":
+#                 index = i
+#             if arr[i] == "học" and arr[i - 1] == "lớp":
+#                 index = i
+#             if arr[i] == "phần" and arr[i - 1] == "học":
+#                 index = i
+#             if arr[i] == "lớp" and arr[i - 1] == "mã":
+#                 index = i
+#         if index != -1:
+#             for i in range(index + 1, len(arr)):
+#                 s2 += " " + arr[i]
+#         return index, s2
+# print(dectectMyLogic("tìm cho tôi môn học và mã lớp xử lý môn ngữ tự niên và tâm lý học").__getitem__(0))

@@ -4,22 +4,46 @@ class myCourseLogic (LogicAdapter):
     def __init__(self, **kwargs):
         super(myCourseLogic, self).__init__(**kwargs)
 
-    # def can_process(self, statement):
-    #     arr = statement.text.split()
-    #     index = -1
-    #     for i in range(len(arr)):
-    #         if arr[i] == "học" and arr[i - 1] == "môn":
-    #             index = i
-    #         if arr[i] == "học" and arr[i - 1] == "lớp":
-    #             index = i
-    #         if arr[i] == "phần" and arr[i - 1] == "học":
-    #             index = i
-    #         if arr[i] == "lớp" and arr[i - 1] == "mã":
-    #             index = i
-    #     if index != -1:
-    #         return True
-    #     else:
-    #         return False
+    def changeWordBeforePre(self,s1):
+        wordInit = set(["môn", "học", "phần", "lớp", "mã", "lịch","và"])
+        max = 0
+        for text in wordInit:
+            if len(text) == 2:
+                t = self.levenshteinDistance(s1, text)
+                if t > 0.33 and t > max:
+                    max = t
+                    s1 = text
+            else:
+                t = self.levenshteinDistance(s1, text)
+                if t > 0.4 and t > max:
+                    max = t
+                    s1 = text
+        return s1
+
+    """
+    sử dụng cả chuỗi input nhập vào 
+    tìm cho tôi mon hocj và  max lớp xử lý ngôn ngữ tự niên và tâm lý học 
+    -> tìm cho tôi môn học và mã lớp xử lý môn ngữ tự niên và tâm lý học
+    """
+
+    def changeInput(self,s1):
+        arr = s1.split()
+        s2 = ""
+        for t in arr:
+            s2 += " " + self.changeWordBeforePre(t)
+        return s2.strip()
+
+    def can_process(self, statement):
+        inputpre = self.changeInput(statement.text)
+        index = self.dectectMyLogic(inputpre).__getitem__(0)
+        if self.detectMlop(statement.text) != False:
+            return True
+        if self.detectmaHp(statement.text) != False:
+            return True
+        if index != -1:
+            return True
+        else:
+            return False
 
     def dectectMyLogic(self,s1):
         arr = s1.split()
@@ -62,12 +86,14 @@ class myCourseLogic (LogicAdapter):
     def detectmaHp(self,s1):
         import re
         t = re.findall(r"[a-zA-Z]{2,3}[0-9]{4}[a-zA-Z]?", s1)
-        t1 = re.sub(r"[a-zA-Z]{2,3}[0-9]{4}[a-zA-Z]?", "",s1)
         if len(t) == 0:
             return False
         else:
-            return t,t1
-
+            return t
+    def replacemaHP(self,s1):
+        import re
+        t1 = re.sub(r"[a-zA-Z]{2,3}[0-9]{4}[a-zA-Z]?", "", s1)
+        return t1
     def detectMlop(self,s1):
         import re
         t = re.findall(r"[0-9]{5,6}", s1)
@@ -76,25 +102,39 @@ class myCourseLogic (LogicAdapter):
         else:
             return t
 
+    def replaceMlop(self,s1):
+        import re
+        t1 = re.sub(r"[0-9]{5,6}", "", s1)
+        return  t1
+
     """
     dung de sua loi chinh ta cho nguoi nhap vao
     vi du: ngôn ngữ tự niên -> ngôn ngữ tự nhiên.
     """
 
     def choseSenetence(self ,s1):
-        tenHp = set(['xử lý ngôn ngữ tự nhiên', 'kĩ thuật hóa học', 'lập trình hướng đối tượng', 'lập trình c#'])
-        kc = 0
+        tenHp = set()
+        import MySQLdb
+        con = db = MySQLdb.connect(host="localhost",  # your host, usually localhost
+                                   user="root",  # your username
+                                   passwd="anhdem96",  # your password
+                                   db="test_it4421",
+                                   charset='utf8')
+        query = con.cursor()
+        query.execute("SELECT monhoc FROM tenmonhoc;")
+        for row in query.fetchall():
+            tenHp.add(row[0].lower())
+        con.close()
+        kc = 0.0
         for hp in tenHp:
             temp = self.levenshteinDistance(hp, s1)
             if temp > kc:
                 kc = temp
                 monhoc = hp
-            if kc > 0.6:
-                break
-        if kc > 0.6:
+        if kc >= 0.5:
             return monhoc
         else:
-            return 0
+            return False
 
     """
     khi ham choseSentence khong the tra lai dc 1 ket qua hop ly,
@@ -111,44 +151,115 @@ class myCourseLogic (LogicAdapter):
         threshold sẽ là 0.5 cho từ có 2 kí tụ
         threshold sẽ là 2/3 cho từ có 3 kí tụ trở lên
         """
-        words = set(['xử', 'lý', 'ngôn', 'ngữ', 'tự', 'nhiên', 'lập', 'trình'])
+        words = set()
+        import MySQLdb
+        con = db = MySQLdb.connect(host="localhost",  # your host, usually localhost
+                                   user="root",  # your username
+                                   passwd="anhdem96",  # your password
+                                   db="test_it4421",
+                                   charset='utf8')
+        query = con.cursor()
+        query.execute("SELECT vocab FROM vocabulary;")
+        for row in query.fetchall():
+            words.add(row[0].lower())
+        con.close()
         words1 = s1.split()
         s2 = ""
+        max1 =0.0
+        nearlest=""
         for temp in words1:
-            if (len(temp) > 2):
-                for temp1 in words:
-                    kc = self.levenshteinDistance(temp, temp1)
-                    if kc >= 2 / 3:
-                        s2 += " " + temp1
-                        break
+            for temp1 in words:
+                kc = self.levenshteinDistance(temp, temp1)
+                if kc >= max1:
+                    max1 = kc
+                    nearlest = temp1
+                if max1 == 1:
+                    break
+            if max1 >= 0.5:
+                s2 +=" " + nearlest
             else:
-                for temp1 in words:
-                    kc = self.levenshteinDistance(temp, temp1)
-                    if kc >= 0.5:
-                        s2 += " " + temp1
-                        break
+                s2 += " " + temp
+            # if (len(temp) > 2):
+            #     for temp1 in words:
+            #         kc = self.levenshteinDistance(temp, temp1)
+            #         if kc >= 2 / 3:
+            #             s2 += " " + temp1
+            #             break
+            # else:
+            #     for temp1 in words:
+            #         kc = self.levenshteinDistance(temp, temp1)
+            #         if kc >= 0.5:
+            #             s2 += " " + temp1
+            #             break
         return s2
     def process(self, statement):
-
         # out = self.dectectMyLogic(statement.text).__getitem__(1)
         from chatterbot.conversation import Statement
-        return 1, Statement('số lớp là ')
+        outhp =self.outputhp(statement.text)
+        outMl = self.outputMlop(statement.text)
+        t = Statement('ket qua la \n '+outhp +"\n"+outMl )
+        t.confidence = 1
+        return t
+
+    def detecttenLop(self,s1):
+        t = s1.split(',')
+        t1 = t[-1].split("và")
+        t.remove(t[-1])
+        if len(t1) > 1:
+            for text in t1:
+                t.append(text)
+        for i in range(len(t)):
+            t[i] = t[i].strip()
+        return t
+
+    def fixtenlop(self,s1):
+        t = self.choseSenetence(s1)
+        if t == False:
+            t1 = self.choseword(s1)
+            t = self.choseSenetence(t1)
+        return t
+
+    def processTenLop(self,s1):
+        t = self.detecttenLop(s1)
+        rs = []
+        for text in t:
+            rs.append(self.fixtenlop(text.lower()))
+        return rs
+
+    def outputhp(self,s1):
+        str1 = "ma hoc phan: "
+        mahp = self.detectmaHp(s1)
+        for text in mahp:
+            str1 += "\n " + str(text)
+        return str1
+    def outputMlop(self,s1):
+        str2 = "ma lop: "
+        malop = self.detectMlop(s1)
+        if malop != False:
+            for text in malop:
+                str2 += "\n" + str(text)
+        return str2
 
     def output(self,s1):
-        newS=""
-        newS1=""
-        mahp=[]
-        malop=[]
-        if self.detectmaHp(s1) != False:
-            mahp = self.detectmaHp(s1).__getitem__(0)
-            newS = self.detectmaHp(s1).__getitem__(1)
-        if self.detectMlop(newS) !=False:
-            malop = self.detectMlop(newS).__getitem__(0)
-            newS1 = self.detectMlop(newS).__getitem__(1)
-        str1 =""
-        for text in mahp :
-            str1 += " " + str(text)
-        for text in malop :
-            str1 += " " + str(text)
-        return str1 + " "+ newS1
+        str1 = "ma hoc phan: "
+        mahp =self.detectmaHp(s1)
+        if mahp != False:
+            for text in mahp:
+                str1 += "\n " + str(text)
+            newS = self.replacemaHP(s1)
+        else:
+            newS = s1
+        str1 += "\n ma lop: "
+        malop = self.detectMlop(newS)
+        if malop !=False:
+            newS1 = self.replaceMlop(newS)
+            for text in malop:
+                str1 += "\n" + str(text)
+        else:
+            newS1 = newS
+        tenlop = self.processTenLop(newS1)
+        str1 +="\n ten lop:"
+        for text in tenlop:
+            str1 +="\n "+str(text)
+        return str1
 
