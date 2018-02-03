@@ -303,10 +303,13 @@ def processTenLop(s1):
     t = detecttenLop(s1)
     rs = []
     firstTenlop = fixtenlop(t[0].lower())
+    print(firstTenlop)
     if firstTenlop ==False:
         t1 = fixtenlop(dectectMyLogic(changeInput(t[0])).__getitem__(1))
         if t1 !=False:
             rs.append(t1)
+    else:
+        rs.append(firstTenlop)
     for i  in range(1,len(t)):
         tenlop = fixtenlop(t[i].lower())
         if tenlop != False:
@@ -354,7 +357,7 @@ def changeInput( s1):
         s2 += " " + changeWordBeforePre(t)
     return s2.strip()
 
-print(processTenLop(testdetect))
+print(processTenLop("tâm lý học"))
 
 def choseword(s1):
     """

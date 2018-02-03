@@ -42,7 +42,7 @@ class myCourseLogic (LogicAdapter):
             return True
         elif self.detectmaHp(statement.text) != False:
             return True
-        elif self.processTenLop(t).__getitem__(0) != False:
+        elif self.processTenLop(t)!= False:
             return True
         else:
             return False
@@ -242,6 +242,8 @@ class myCourseLogic (LogicAdapter):
             t1 = self.fixtenlop(self.dectectMyLogic(self.changeInput(t[0])).__getitem__(1))
             if t1 != False:
                 rs.append(t1)
+        else:
+            rs.append(firstTenlop)
         for i in range(1, len(t)):
             tenlop = self.fixtenlop(t[i].lower())
             if tenlop != False:
