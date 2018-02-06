@@ -12,14 +12,8 @@ chatbot = ChatBot(
 
 # Get a response for some unexpected input
 
+print( chatbot.get_response("tâm lý học , 102936.0 , bf2110"))
 
-
-while True:
-    print("nhap cai gi ban muon di nao")
-    x = input()
-    response = chatbot.get_response(x)
-
-    print(response)
 
 
 

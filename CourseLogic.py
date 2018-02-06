@@ -121,7 +121,7 @@ class myCourseLogic (LogicAdapter):
         import MySQLdb
         con = db = MySQLdb.connect(host="localhost",  # your host, usually localhost
                                    user="root",  # your username
-                                   passwd="291096",  # your password
+                                   passwd="anhdem96",  # your password
                                    db="nlp",
                                    charset='utf8')
         query = con.cursor()
@@ -158,7 +158,7 @@ class myCourseLogic (LogicAdapter):
         import MySQLdb
         con = db = MySQLdb.connect(host="localhost",  # your host, usually localhost
                                    user="root",  # your username
-                                   passwd="291096",  # your password
+                                   passwd="anhdem96",  # your password
                                    db="nlp",
                                    charset='utf8')
         query = con.cursor()
@@ -253,56 +253,75 @@ class myCourseLogic (LogicAdapter):
         return False
 
     def outputhp(self,s1):
-        str1 = "ma hoc phan: "
+        str1 = "tim theo ma hoc phan: \n"
         mahp = self.detectmaHp(s1)
         if mahp != False :
+            str2 = " select ma_lop,ma_hp,ten_hp,thoi_gian,tuan,phong from nlp.tkb where lower(ma_hp) in ("
             for text in mahp:
-                str1 += "\n " + str(text)
-            return str1
+                str2 += "'" + text.lower() + "',"
+            str2 += "'')"
+
+            import MySQLdb
+            con = db = MySQLdb.connect(host="localhost",  # your host, usually localhost
+                                       user="root",  # your username
+                                       passwd="anhdem96",  # your password
+                                       db="nlp",
+                                       charset='utf8')
+            query = con.cursor()
+            query.execute(str2)
+            rs = ""
+            for row in query.fetchall():
+                rs += row[0] + "\t" + row[1] + "\t" + row[2] + "\t" + row[3] + "\t" + row[4] + "\t" + row[5] + "\n"
+            return str1 + rs
         else:
-            return "0"
+            return "không có mã học phần nào cả"
+
     def outputMlop(self,s1):
-        str2 = "ma lop: "
+        str1 = "tim theo ma lop: \n"
         malop = self.detectMlop(s1)
-        if malop != False :
-            if malop != False:
-                for text in malop:
-                    str2 += "\n" + str(text)
-            return str2
-        return "0"
+        if malop != False:
+            str2 = " select ma_lop,ma_hp,ten_hp,thoi_gian,tuan,phong from nlp.tkb where ma_lop in ("
+            for text in malop:
+                str2 += "" + text + ","
+            str2 += "'')"
+
+            import MySQLdb
+            con = db = MySQLdb.connect(host="localhost",  # your host, usually localhost
+                                       user="root",  # your username
+                                       passwd="anhdem96",  # your password
+                                       db="nlp",
+                                       charset='utf8')
+            query = con.cursor()
+            query.execute(str2)
+            rs = ""
+            for row in query.fetchall():
+                rs += row[0] + "\t" + row[1] + "\t" + row[2] + "\t" + row[3] + "\t" + row[4] + "\t" + row[5] + "\n"
+            return str1 + rs
+
+        return "không có mã lớp nào cả"
 
     def outputTenlop(self,s1):
         if self.processTenLop(s1) != False:
-            str1 ="tên lớp học \n"
+            str1 ="lớp học \n"
+            str2 =" select ma_lop,ma_hp,ten_hp,thoi_gian,tuan,phong from nlp.tkb where ten_hp in ("
             for text in self.processTenLop(s1).__getitem__(1):
-                str1 +=text+"\n"
-            return str1
+                str2 +="'"+text+"',"
+            str2 +="'')"
+            import MySQLdb
+            con = db = MySQLdb.connect(host="localhost",  # your host, usually localhost
+                                       user="root",  # your username
+                                       passwd="anhdem96",  # your password
+                                       db="nlp",
+                                       charset='utf8')
+            query = con.cursor()
+            query.execute(str2)
+            rs=""
+            for row in query.fetchall():
+                rs += row[0] +"\t" +row[1]+"\t"+row[2]+"\t" +row[3]+"\t"+row[4]+"\t"+row[5]+"\n"
+
+            return str1 +rs
         else:
-            return "0"
-
-
-    # def output(self,s1):
-    #     str1 = "ma hoc phan: "
-    #     mahp =self.detectmaHp(s1)
-    #     if mahp != False:
-    #         for text in mahp:
-    #             str1 += "\n " + str(text)
-    #         newS = self.replacemaHP(s1)
-    #     else:
-    #         newS = s1
-    #     str1 += "\n ma lop: "
-    #     malop = self.detectMlop(newS)
-    #     if malop !=False:
-    #         newS1 = self.replaceMlop(newS)
-    #         for text in malop:
-    #             str1 += "\n" + str(text)
-    #     else:
-    #         newS1 = newS
-    #     tenlop = self.processTenLop(newS1)
-    #     str1 +="\n ten lop:"
-    #     for text in tenlop:
-    #         str1 +="\n "+str(text)
-    #     return str1
+            return "không có tên lớp nào cả"
 
 
 
