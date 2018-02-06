@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from chatterbot.logic import LogicAdapter
 class myCourseLogic (LogicAdapter):
+
     def __init__(self, **kwargs):
         super(myCourseLogic, self).__init__(**kwargs)
 
@@ -48,8 +49,11 @@ class myCourseLogic (LogicAdapter):
             return False
 
     def dectectMyLogic(self,s1):
-        arr = s1.split()
+        # self.changeInput(s1)
+        # arr = s1.split()
+        arr = self.changeInput(s1).split()
         s2 = ""
+
         index = -1
         for i in range(len(arr)):
             if arr[i] == "học" and arr[i - 1] == "môn":
@@ -117,6 +121,7 @@ class myCourseLogic (LogicAdapter):
     """
 
     def choseSenetence(self ,s1):
+        # print(s1)
         tenHp = set()
         import MySQLdb
         con = db = MySQLdb.connect(host="localhost",  # your host, usually localhost
@@ -135,7 +140,7 @@ class myCourseLogic (LogicAdapter):
             if temp > kc:
                 kc = temp
                 monhoc = hp
-        if kc >= 0.5:
+        if kc > 0.5:
             return monhoc
         else:
             return False
@@ -202,7 +207,7 @@ class myCourseLogic (LogicAdapter):
         outMl = self.outputMlop(statement.text)
         t = self.replacemaHP(statement.text)
         t1 = self.replaceMlop(t)
-        t = Statement('ket qua la \n '+outhp +"\n"+outMl +"\n"+self.outputTenlop(self.changeInput(t1)))
+        t = Statement('ket qua la \n '+outhp +"\n"+outMl +"\n"+self.outputTenlop(t1))
         t.confidence = 1
         return t
     """
@@ -234,7 +239,7 @@ class myCourseLogic (LogicAdapter):
     lay ten lop hoan thien vao mang
     """
     def processTenLop(self,s1):
-        # print(s1)
+
         t = self.detecttenLop(s1)
         rs = []
         firstTenlop = self.fixtenlop(t[0].lower())
